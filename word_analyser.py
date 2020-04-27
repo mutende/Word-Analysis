@@ -7,6 +7,10 @@ Created on Fri Apr 17 19:20:28 2020
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
+# import nltk
+#nltk.download()
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 #read excel
 # convert the dictionary to list and remove the unicode from string
@@ -106,8 +110,9 @@ def count_words(no_comments):
     word_count = {}
     #loop to count words
     for i in range(len(no_comments)):
-        #convert a sentence into a list of words
-        word_list = no_comments[i][3].split()
+        #convert a sentence into a list of words and remove english stop words
+        text_tokens = word_tokenize(no_comments[i][3])
+        word_list = [word for word in text_tokens if not word in stopwords.words('english')]
         #loop through each word from the sentence
         for word in word_list:
             #if new words are obtained
@@ -242,20 +247,23 @@ def calculate_tf_idf(data_set,N):
             idf = math.log((tf/N))
         except:
             idf = 0
-            
+   
         #tf-idf = tf * idf
         tf_idf = tf * idf
-        #add data to
-        tf_idf_data = (w[0],w[3],tf_idf)
+        #there are 3 org and 4 users, generate dataframe of specific group and return the data.
+        if N == 4:            
+            #add data to list
+            tf_idf_data = (w[0],w[3],tf_idf)
+        if N == 3:
+            tf_idf_data = (w[0],w[2],tf_idf)
         #add tuple to list
         word_tf_idf.append(tf_idf_data)
-    #there are 3 org and 4 users, generate dataframe of specific group and return the data.
     if N == 4:
         user_tf_idf_df = pd.DataFrame(word_tf_idf, columns=['Word','User','TF-IDF'])
         return user_tf_idf_df
-    else:
+    if N == 3:
         org_tf_idf_df = pd.DataFrame(word_tf_idf, columns=['Word','Organization','TF-IDF'])            
-    return org_tf_idf_df
+        return org_tf_idf_df
     
 
 
@@ -283,7 +291,7 @@ if __name__ == "__main__":
     org_tf_idf= calculate_tf_idf(words_tuple[:100],3)
     #write tf-idf of user and organizarion
     write_to_excel(user_tf_idf,"TF-IDF-USER.xlsx","User")
-    write_to_excel(user_tf_idf,"TF-IDF-ORG.xlsx","Organization")
+    write_to_excel(org_tf_idf,"TF-IDF-ORG.xlsx","Organization")
     
     
     

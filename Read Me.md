@@ -8,3 +8,4 @@ Requirement.
 pandas
 xlrd
 openpyxl
+nltk
